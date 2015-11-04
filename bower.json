@@ -26,7 +26,9 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.1.0"
+    "polymer": "Polymer/polymer#^1.1.0",
+    "graphene-client": "marcomag89/graphene-client",
+    "graphene-doc": "marcomag89/graphene-doc"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

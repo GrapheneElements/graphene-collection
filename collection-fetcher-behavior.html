@@ -1,0 +1,90 @@
+<script>
+  var collectionFetcherBehavior = {
+    start:function(){
+      this.started = true;
+      this.refresh();
+    },
+
+    stop:function(){
+      this.started=false;
+      this.reset();
+    },
+
+    refresh  : function(){
+      this.reset();
+      var url=this._getCurrentPageUrl(this.cursor);
+      if(!!url && this.started){this.fetchPage(url);}
+    },
+
+    getColumns:function(){return []},
+
+    getElementStruct:function(){
+      return this.$$('[role = doc]').doc[0]['response-data'];
+    },
+
+    reset:function(){
+      var client = this.$$('[role=client]');
+      if(!!client){this.fetcher = client;}
+      else{log.warn('collection fetcher client not found in dom');}
+      this.isReady = false;
+
+      this.results = [];
+      this.continuousResults=[];
+      this.cache     = {};
+      this.cursor    = {};
+      this.status    = {};
+      this.lastIndex = 0;
+    },
+
+    fetchNext   : function(){this.fetchPage(this._getNextPageUrl(this.cursor));},
+    fetchPrv    : function(){this.fetchPage(this._getPrevPageUrl(this.cursor));},
+
+
+    fetchPage:function(pageUrl){
+      if(!!pageUrl && !(!!this.status[pageUrl])){
+        this.status[pageUrl]='pending';
+        this.fetcher.fetch(pageUrl)
+          .then(function(res){
+            this.status  [pageUrl] = 'cached';
+            this.cache   [pageUrl] = res;
+            this.cursor = this._getCursor(res);
+            var index  = this._getPageIndex(this.cursor);
+            var result = this._getResult(res);
+            this.isReady = true;
+            this.results = result;
+            if(index === (this.lastIndex+1)){
+              this.continuousResults = this.continuousResults.concat(result);
+            }
+            this.lastIndex=index;
+            this._onResults(this.results,this.continuousResults);
+          }.bind(this))
+          .catch(function(err){
+            delete this.status[pageUrl];
+          }.bind(this));
+      }
+    },
+
+    _getCursor         : function(response){},
+    _getResult         : function(response){},
+    _getCurrentPageUrl : function(cursor){},
+    _getNextPageUrl    : function(cursor){},
+    _getPrevPageUrl    : function(cursor){},
+
+    _getPageIndex      : function(cursor){return 0},
+    _onResults         : function(){this.fire('results',{results:this.results,continuousResults:this.continuousResults})},
+
+    properties:{
+      fetcher   : Object,
+      firstUrl  : String,
+      status    : Object,
+      cache     : Object,
+      cursor    : Object,
+      lastIndex : Number,
+      started   : {type:Boolean, value:false, notify:true},
+      isReady     : {type:Boolean, value:false, notify:true},
+
+      results   : {type:Object, notify:true},
+      continuousResults : {type:Array, notify:true}
+    }
+  }
+</script>

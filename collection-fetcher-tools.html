@@ -1,0 +1,14 @@
+<script>
+  var collectionFetcherTools={
+    getJsonFromUrl:function(url) {
+      var parString = url.split('?')[1];
+      var parKV     = parString.split('&');
+      var ret       ={};
+      for(var i in parKV){
+        var pKvArr = parKV[i].split('=')
+        ret[pKvArr[0]]=pKvArr[1];
+      }
+      return ret;
+    }
+  }
+</script>

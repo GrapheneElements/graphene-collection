@@ -15,7 +15,7 @@
   ],
   "main": "graphene-collection.html",
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/marcomag89/graphene-collection/",
+  "homepage": "https://github.com/GrapheneElements/graphene-collection/",
   "ignore": [
     "/.*",
     "/test/",
@@ -27,8 +27,8 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.1.0",
-    "graphene-client": "marcomag89/graphene-client",
-    "graphene-doc": "marcomag89/graphene-doc"
+    "graphene-client": "GrapheneElements/graphene-client",
+    "graphene-doc": "GrapheneElements/graphene-doc"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

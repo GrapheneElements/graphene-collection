@@ -67,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _getCursor         : function(response) {return response.cursor;},
       _getResult         : function(response) {return response.Collection;},
       _getNextPageUrl    : function(cursor)   {return cursor.nxt;},
-      _getPrevPageUrl    : function(cursor)   {return cursor.prv},
+      _getPrevPageUrl    : function(cursor)   {return cursor.prv;},
 
       _getCurrentPageUrl : function(cursor){
         if(!!cursor && !!cursor.cur) return cursor.cur;

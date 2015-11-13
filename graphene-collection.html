@@ -88,8 +88,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _getPageIndex:function(cursor){
-        var kv = collectionFetcherTools.getJsonFromUrl(cursor.cur);
-        return parseInt(kv['page_no']);
+        var url = typeof cursor === 'string' ? cursor : cursor.cur;
+        var kv = collectionFetcherTools.getJsonFromUrl(url);
+        var pag = (!!kv['page_no']) ? parseInt(kv['page_no']) : 1;
+        return pag;
       },
 
 

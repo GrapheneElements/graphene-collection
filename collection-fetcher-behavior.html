@@ -28,6 +28,7 @@
       else{log.warn('collection fetcher client not found in dom');}
       this.isReady = false;
 
+      this.collectionStatus = 'free';
       this.results = [];
       this.continuousResults=[];
       this.cache     = {};
@@ -42,7 +43,11 @@
 
     fetchPage:function(pageUrl){
       if(!!pageUrl && !(!!this.status[pageUrl])){
+
+        this.collectionStatus = 'busy';
         this.status[pageUrl]='pending';
+        console.log('fetching: ' + pageUrl);
+        this.fetchingUrl = pageUrl;
         this.fetcher.fetch(pageUrl)
           .then(function(res){
             this.status  [pageUrl] = 'cached';
@@ -57,8 +62,23 @@
             }
             this.lastIndex=index;
             this._onResults(this.results,this.continuousResults);
+                  this.collectionStatus = 'free';
           }.bind(this))
           .catch(function(err){
+                  console.log(err.message);
+
+                  var err = JSON.parse(err.message);
+                  console.log(err.code);
+                  if (err.code === 404) {
+                    console.log(this._getPageIndex(pageUrl));
+                    if (this._getPageIndex(pageUrl) === 1) {
+                      this.collectionStatus = 'empty';
+                    } else {
+                      this.collectionStatus = 'completed'
+                    }
+                  } else {
+                    this.collectionStatus = 'free'
+                  }
             delete this.status[pageUrl];
           }.bind(this));
       }
@@ -71,7 +91,13 @@
     _getPrevPageUrl    : function(cursor){},
 
     _getPageIndex      : function(cursor){return 0},
-    _onResults         : function(){this.fire('results',{results:this.results,continuousResults:this.continuousResults})},
+    _onResults: function () {
+      this.fire('results', {results: this.results, continuousResults: this.continuousResults})
+    },
+
+    _onCollectionStatusChange: function (status) {
+      console.log(status)
+    },
 
     properties:{
       fetcher   : Object,
@@ -80,6 +106,8 @@
       cache     : Object,
       cursor    : Object,
       lastIndex : Number,
+
+      collectionStatus: {type: String, value: 'free', notify: true, observer: '_onCollectionStatusChange'},
       started   : {type:Boolean, value:false, notify:true},
       isReady     : {type:Boolean, value:false, notify:true},
 

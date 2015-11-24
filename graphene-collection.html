@@ -33,6 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       attached:function(){
         this._elements={};
         this._elements.doc = this.$$('[role = doc]');
+          this.fire('collection-ready');
       },
 
       _onDocUpdate:function(e){
@@ -61,8 +62,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.refresh();
         }catch(e){console.log('non va')};
       },
-
-
 
       _getCursor         : function(response) {return response.cursor;},
       _getResult         : function(response) {return response.Collection;},

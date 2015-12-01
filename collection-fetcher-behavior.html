@@ -55,7 +55,6 @@
 
     fetchPage: function (pageUrl) {
       if (!!pageUrl && !(!!this.status[pageUrl])) {
-
         this.collectionStatus = 'busy';
         this.status[pageUrl] = 'pending';
         console.log('fetching: ' + pageUrl);
@@ -95,8 +94,10 @@
     _checkError: function (url, error) {
       if (error.code === 404) {
         this.collectionStatus = this._getPageIndex(url) === 1 ? 'empty' : 'completed';
-        this.results = [];
-        this.continuousResults = [];
+          if (this.collectionStatus === 'empty') {
+              this.results = [];
+              this.continuousResults = [];
+          }
         return true;
       } else {
         this.collectionStatus = 'free';

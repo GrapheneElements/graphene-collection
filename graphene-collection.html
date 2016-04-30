@@ -11,170 +11,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../graphene-client/graphene-client.html">
 <link rel="import" href="../graphene-doc/graphene-doc.html">
-
+<script src="graphene-collection.behavior.js"></script>
+<!--
 <link rel="import" href="collection-fetcher-tools.html">
 <link rel="import" href="collection-fetcher-behavior.html">
-<link rel="import" href="../../conf/api-settings.html">
-
+-->
 
 <dom-module id="graphene-collection">
-    <template>
-        <graphene-client id="client"></graphene-client>
-        <graphene-doc id="doc" action-name="{{_actionName}}" doc="{{_doc}}"></graphene-doc>
-    </template>
+    <template></template>
+    <script src="md5.min.js"></script>
     <script>
         (function() {
             'use strict';
-
             Polymer({
-                is: 'graphene-collection',
-
-                _queryChanged: function(query, auto) {
-                    if (query && auto) {
-                        this.async(function() {
-                            this.go();
-                        }, 200);
-                    }
-                },
-
-                go: function(query) {
-                    query = !!query ? query : this._query;
-                    if (query.breaksContinuous) {
-                        this.set('continuous', []);
-                    }
-                    this.set('_lastConfig', query.config);
-                    this.set('_lastPage', query.page || 1);
-
-                    this.$.client.fetch(query.query)
-                            .then(this._onResults.bind(this))
-                            .catch(this._onError.bind(this))
-                },
-
-                _onResults: function(res) {
-                    for (var i in res.Collection) {
-                        this.push('continuous', res.Collection[i]);
-                    }
-                    this.push('continuous', {
-                        __continuousMeta: res.Collection.size < this.pageSize ? 'end-collection' : 'end-page',
-                        pageSize:         this.pageSize,
-                        pageLength:       res.Collection.size
-                    });
-
-                    this.set('pageResult', res.Collection);
-                    //console.log(this.continuous);
-                    this.set('_continuousBusy', false);
-                },
-
-                _onError: function(err) {
-                    console.error(err);
-                    this.push('continuous', {
-                        __continuousMeta: this.page === 1 ? 'empty-collection' : 'end-collection',
-                        pageSize:         this.pageSize,
-                        pageLength:       0
-                    });
-                    this.set('pageResult', []);
-                },
-
-                _getActionName: function(modelName) {
-                    return !!window.graphene.settings.models[modelName] ?
-                    window.graphene.settings.models[modelName] + '_READ_COLLECTION' : null;
-                },
-
-                _docChanged: function(e) {
-                    console.log(e);
-                },
-
-                fetchNextContinuous: function() {
-                    if (!this._continuousBusy) {
-                        this.set('page', this.page + 1);
-                    }
-                },
-
-                _getQuery: function(doc, search, sortBy, sortMode, page, pageSize, queryParams) {
-                    //http://localhost:8000/n/agency/collection?sort_by=&sort_discend=0&page_size=20&page_no=2
-                    var breaksContinuous = false;
-                    var currentConfig = {
-                        doc:         doc,
-                        search:      search,
-                        sortBy:      sortBy,
-                        sortMode:    sortMode,
-                        pageSize:    pageSize,
-                        queryParams: queryParams
-                    };
-                    if (JSON.stringify(currentConfig) !== JSON.stringify(this._lastConfig) || this._lastPage + 1 !== page) {
-                        breaksContinuous = true;
-                    }
-                    //console.log('Break continuous: ' + breaksContinuous, page, currentConfig, this._lastConfig);
-                    var url = doc.base.DocAction[0].url;
-                    var queryComponents = [];
-
-                    if (!!search && search !== '') {
-                        queryComponents.push('search=' + search);
-                    }
-                    if (!!sortBy && sortBy !== '') {
-                        queryComponents.push('sort_by=' + sortBy);
-                        queryComponents.push('sort_discend=' + (sortMode === 'DSC' ? 1 : 0));
-                    }
-                    if (!!page) {
-                        queryComponents.push('page_no=' + page);
-                    }
-                    if (!!pageSize) {
-                        queryComponents.push('page_size=' + pageSize);
-                    }
-                    if (!!queryParams && !!queryParams.base) {
-                        queryComponents.push('qParams=' + JSON.stringify(queryParams.base));
-                    }
-                    var query = url + (queryComponents.length > 0 ? '?' + queryComponents.join('&') : '');
-                    console.log(query, this.modelName, this.count++);
-                    return {
-                        query:            query,
-                        config:           currentConfig,
-                        page:             page,
-                        breaksContinuous: breaksContinuous
-                    };
-                },
-
-                _actionNameChange: function(actionName) {
-                    console.log('Action name: ' + actionName)
-                },
-
-                _searchChanged: function() {
-                    this.set('page', 1);
-                },
-
-                observers: [
-                    '_queryChanged(_query.*, auto)',
-                    '_searchChanged(search)',
-                    '_actionNameChange(_actionName)'
-                ],
-
-                count:      0,
-                properties: {
-                    _continuousBusy: {type: Boolean, value: false},
-                    _doc:            Object,
-                    _lastConfig:     Object,
-                    _lastPage:       Number,
-                    _query:          {
-                        type:     Object,
-                        computed: '_getQuery(_doc.*, search, sortBy, sortMode, page, pageSize, queryParams.*)'
-                    },
-                    _actionName:     {type: String, computed: '_getActionName(modelName)', notify: true},
-
-                    /*results*/
-                    continuous: {type: Array, value: [], notify: true},
-                    pageResult: {type: Array, value: [], notify: true},
-
-                    /*settings*/
-                    queryParams: {type: Object, value: null, notify: true},
-                    sortMode:    {type: String, value: 'ASC', notify: true},
-                    sortBy:      {type: String, value: null, notify: true},
-                    search:      {type: String, value: null, notify: true},
-                    page:        {type: Number, value: null, notify: true},
-                    pageSize:    {type: Number, value: null, notify: true},
-
-                    modelName: {type: String},
-                    auto:      {type: Boolean, value: true}
-                }
+                is:        'graphene-collection',
+                behaviors: [window.Graphene.behaviors.collection]
             });
         })();
     </script>
